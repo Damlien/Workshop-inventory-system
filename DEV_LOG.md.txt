@@ -1,0 +1,24 @@
+# Utviklingslogg
+
+**Dato: [10/01/26]**
+
+Opprettet repository i GitHub "Verksted-Lager-system"
+installerte Git på pc
+klonet repository til egen mappe på min pc
+	guide:
+	1) åpne mappe der repository skal lagres på egen pc
+	2) høyre klikk i mappe og velg "åpne i terminal"
+	3) hent repository clone link fra github, grønn knapp med "<>code"
+		i dette tilfelle: https://github.com/Damlien/Verksted-Lager-system.git
+	4) i terminal skriv git clone [url]
+		i dette tilfelle: git clone https://github.com/Damlien/Verksted-Lager-system.git
+	5) resulterer i ny mappe med samme navn som repository "Verksted-Lager-system"
+la til ekstra mapper i "Verksted-lager-system" på min pc: 
+	"learning_experiments" for prosjekter der man lærer kode
+	"src" for source code
+lagde tekstfilen "DEV_LOG.md" for loggføring
+
+github må nå oppdateres med endringer på pc. 
+	i terminal som er inni prosjektmappen skriv: git add . 
+		punktum på slutten betyr "alt som er endret"
+	
