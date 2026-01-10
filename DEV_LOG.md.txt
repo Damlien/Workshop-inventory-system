@@ -70,3 +70,10 @@ learning_experiments - script data_lagring_test.py oppdatering
 				FIL_STI = BASE_DIR / "lager.json"
 					her får man sti til selve filen
 
+Lagde mappen søk og filen søk_i_lager.py 
+	scriptet gjør at man kan søke etter komponenter i filen lager.json. 
+	Bruker enkel input for søkeord og bruker det for å sammenligne med navn i lager listen
+
+	bruker path library for å finne lokasjon til lager.json som ligger i en annen mappe enn scriptet
+
+
