@@ -17,7 +17,7 @@ else:
 nytt_navn= input("Hva er navn på ny komponent?")
 ny_id = int(input("Hva er id på ny komponent?"))
 nytt_antall = int( input("Hva er antall av komponenten?") )
-ny_lokasjon = int( input("hva er lokasjonen på komponenten?") )
+ny_lokasjon =  input("hva er lokasjonen på komponenten?") 
 
 
 
