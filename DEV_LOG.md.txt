@@ -19,6 +19,13 @@ la til ekstra mapper i "Verksted-lager-system" på min pc:
 lagde tekstfilen "DEV_LOG.md" for loggføring
 
 github må nå oppdateres med endringer på pc. 
-	i terminal som er inni prosjektmappen skriv: git add . 
-		punktum på slutten betyr "alt som er endret"
+	her brukes tre kommandoer:	
+		git add . 
+			kommandoen forteller git om hvilke endringer som er gjort og hva som skal være med i neste 			oppdatering. I kommandoen indikerer punktum alle endringer gjort i prosjketmappen
+		
+		git commit -m "beskjed"
+			For dokumentasjon. Låser endringer og gir et unikt ID-nummer. "-m" står for message. 				Forklar hva som er gjort i bedskjed merket med  " "
+
+		git push
+			sender alle endringer og dokumentasjonen til GitHub
 	
