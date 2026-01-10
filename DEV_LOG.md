@@ -43,6 +43,7 @@ I "learning_experiments" mappen ble det opprettet mappen "data_lagring_test"
 - lagde script data_lagring_test.py 
 
 	kode som ble brukt:
+	
 		import json
 
 		liste av dioctionaries for lagring av data for komponenter i lager:
@@ -66,6 +67,7 @@ learning_experiments - script data_lagring_test.py oppdatering
   - benytter nå library path fra pathlib for moderne og ryddig håndtering av filstier
 
 	kode: 
+
 		from pathlib import path
 
 		BASE_DIR = Path(__file__).resolve().parent 
