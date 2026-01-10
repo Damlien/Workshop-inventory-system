@@ -28,38 +28,38 @@ github må nå oppdateres med endringer på pc.
 - her brukes tre kommandoer:	
 
   - git add . 
-  - kommandoen forteller git om hvilke endringer som er gjort og hva som skal være med i neste
-  - oppdatering. I kommandoen indikerer punktum alle endringer gjort i prosjketmappen
+    - kommandoen forteller git om hvilke endringer som er gjort og hva som skal være med i neste
+    - oppdatering. I kommandoen indikerer punktum alle endringer gjort i prosjketmappen
   
   - git commit -m "beskjed"
     - For dokumentasjon. Låser endringer og gir et unikt ID-nummer. "-m" står fo r message. 				
     - Forklar hva som er gjort i bedskjed merket med  " "
 
   - git push
-    sender alle endringer og dokumentasjonen til GitHub
+    - sender alle endringer og dokumentasjonen til GitHub
 
 I "learning_experiments" mappen ble det opprettet mappen "data_lagring_test" 
 - Testing av json for lagring av data med python
 - lagde script data_lagring_test.py 
 
-kode som ble brukt:
-	import json
+	kode som ble brukt:
+		import json
 
-	liste av dioctionaries for lagring av data for komponenter i lager:
-		eks:
-			komponenter = [
-				{"id":1  , "navn": "motstand 10kohm" , "antall": 100, "hyll": 1 },
-				{"id":2  , "navn": "Arduino Nano" , "antall": 8 , "hyll": 2  },
-				{"id": 3 , "navn": "kondensator", "antall": 20, "hyll": 3 }
-			]
-	with open(filnavn, operation): 
+		liste av dioctionaries for lagring av data for komponenter i lager:
+			eks:
+				komponenter = [
+					{"id":1  , "navn": "motstand 10kohm" , "antall": 100, "hyll": 1 },
+					{"id":2  , "navn": "Arduino Nano" , "antall": 8 , "hyll": 2  },
+					{"id": 3 , "navn": "kondensator", "antall": 20, "hyll": 3 }
+				]
+		with open(filnavn, operation): 
 
-		formålet med "with" er automatisk håndtering av fil. Filen er åpen for indent blokk under. 
-		Etter blokk lukkes filen. 
+			formålet med "with" er automatisk håndtering av fil. Filen er åpen for indent blokk under. 
+			Etter blokk lukkes filen. 
 
-	json.dump(variabel, filnavn)
+		json.dump(variabel, filnavn)
 
-	json.load(filnavn)
+		json.load(filnavn)
 
 learning_experiments - script data_lagring_test.py oppdatering
 - Gjorde endring i scriptet data_lagring_test.py inne i mappen data_lagring_test 
