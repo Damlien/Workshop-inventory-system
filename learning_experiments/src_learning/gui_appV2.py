@@ -1,271 +1,292 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk  # Verktøy for faner og moderne knapper
-from lager_tjeneste import hent_lager, ny_vare, søk_vare, endre_beholdning, oppdater_vare 
+from tkinter import ttk  # Tools for tabs and modern widgets
+from inventory_service import get_inventory, new_item, search_item, change_stock, update_item
 
-# --- HOVEDOPPSETT ---
+# --- MAIN SETUP ---
 root = tk.Tk()
-root.title("Verksted Lagerstyring Pro")
-root.geometry("800x600") # Større vindu for dashboard-følelse
+root.title("Workshop Inventory Management Pro")
+root.geometry("800x600")  # Larger window for a dashboard feel
 
-# Vi bruker Notebook for å lage faner
-faner = ttk.Notebook(root)
-faner.pack(fill="both", expand=True)
+# Use a Notebook to create tabs
+tabs = ttk.Notebook(root)
+tabs.pack(fill="both", expand=True)
 
-# --- FANE 1: DASHBOARD (Oversikt + Handling) ---
-tab_dashboard = tk.Frame(faner)
-faner.add(tab_dashboard, text="📦 Lagerkontroll")
+# --- TAB 1: DASHBOARD (Overview + Actions) ---
+tab_dashboard = tk.Frame(tabs)
+tabs.add(tab_dashboard, text="📦 Inventory Control")
 
-# 1. TOPPEN: SØKEFELT
+# 1. TOP: SEARCH FIELD
 top_frame = tk.Frame(tab_dashboard, bg="#f0f0f0", pady=10)
 top_frame.pack(fill="x")
 
-tk.Label(top_frame, text="Søk i lager:", bg="#f0f0f0", font=("Arial", 12)).pack(side="left", padx=10)
-entry_sok = tk.Entry(top_frame, font=("Arial", 12), width=30)
-entry_sok.pack(side="left", padx=5)
+tk.Label(top_frame, text="Search inventory:", bg="#f0f0f0", font=("Arial", 12)).pack(
+    side="left", padx=10
+)
+entry_search = tk.Entry(top_frame, font=("Arial", 12), width=30)
+entry_search.pack(side="left", padx=5)
 
-# 2. MIDTEN: TABELLEN
+# 2. MIDDLE: TABLE
 tree_frame = tk.Frame(tab_dashboard)
 tree_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-kolonner = ("id", "navn", "antall", "hylle")
-tabell = ttk.Treeview(tree_frame, columns=kolonner, show="headings")
+columns = ("id", "name", "quantity", "shelf")
+table = ttk.Treeview(tree_frame, columns=columns, show="headings")
 
-# Konfigurer kolonner
-tabell.heading("id", text="ID")
-tabell.column("id", width=60, anchor="center")
-tabell.heading("navn", text="Varenavn")
-tabell.column("navn", width=300, anchor = "center")
-tabell.heading("antall", text="Antall")
-tabell.column("antall", width=100, anchor="center")
-tabell.heading("hylle", text="Hylle", anchor="center")
-tabell.column("hylle", width=100, anchor = "center")
+# Configure columns
+table.heading("id", text="ID")
+table.column("id", width=60, anchor="center")
+table.heading("name", text="Item name")
+table.column("name", width=300, anchor="center")
+table.heading("quantity", text="Quantity")
+table.column("quantity", width=100, anchor="center")
+table.heading("shelf", text="Shelf", anchor="center")
+table.column("shelf", width=100, anchor="center")
 
-scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tabell.yview)
-tabell.configure(yscroll=scrollbar.set)
+scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=table.yview)
+table.configure(yscroll=scrollbar.set)
 
-tabell.pack(side="left", fill="both", expand=True)
+table.pack(side="left", fill="both", expand=True)
 scrollbar.pack(side="right", fill="y")
 
-# 3. BUNNEN: HANDLINGSPANELET (Action Panel)
-action_frame = tk.Frame(tab_dashboard, bg="#e6e6e6", height=150, bd=1, relief="raised")
+# 3. BOTTOM: ACTION PANEL
+action_frame = tk.Frame(
+    tab_dashboard, bg="#e6e6e6", height=150, bd=1, relief="raised"
+)
 action_frame.pack(fill="x", side="bottom")
 
-# Overskrift i handlingspanelet
-lbl_action_title = tk.Label(action_frame, text="Velg en vare i listen over for å gjøre endringer", 
-                            bg="#e6e6e6", font=("Arial", 10, "italic"))
+# Heading in the action panel
+lbl_action_title = tk.Label(
+    action_frame,
+    text="Select an item in the list above to make changes",
+    bg="#e6e6e6",
+    font=("Arial", 10, "italic"),
+)
 lbl_action_title.pack(pady=10)
 
-# Input og knapper (skjult til man velger noe? Nei, vi bare disabler dem kanskje, eller lar dem stå)
+# Inputs and buttons
 btn_frame = tk.Frame(action_frame, bg="#e6e6e6")
 btn_frame.pack(pady=5)
 
-tk.Label(btn_frame, text="Antall:", bg="#e6e6e6").pack(side="left")
-entry_antall = tk.Entry(btn_frame, width=5, font=("Arial", 12))
-entry_antall.pack(side="left", padx=5)
+tk.Label(btn_frame, text="Quantity:", bg="#e6e6e6").pack(side="left")
+entry_quantity = tk.Entry(btn_frame, width=5, font=("Arial", 12))
+entry_quantity.pack(side="left", padx=5)
 
-# --- LOGIKK FOR DASHBOARD ---
+# --- DASHBOARD LOGIC ---
+def update_table(event=None):
+    # Clear table
+    for row in table.get_children():
+        table.delete(row)
 
-def oppdater_tabell(event=None):
-    # Tømmer tabell
-    for rad in tabell.get_children():
-        tabell.delete(rad)
-    
-    # Søker (hvis tomt søkefelt -> henter alt)
-    tekst = entry_sok.get().lower()
-    varer = søk_vare(tekst)
+    # Search (empty search -> get all)
+    text = entry_search.get().lower()
+    items = search_item(text)
 
-    for v in varer:
-        # Fargelegg rader med lite beholdning (valgfritt triks!)
+    for v in items:
+        # Color rows with low stock
         tag = "normal"
-        if v['antall'] < 5:
-            tag = "lav_beholdning"
+        if v["quantity"] < 5:
+            tag = "low_stock"
 
-        tabell.insert("", "end", values=(
-            v['id'], v['navn'], v['antall'], v.get("hylle", "-")
-        ), tags=(tag,))
+        table.insert(
+            "",
+            "end",
+            values=(v["id"], v["name"], v["quantity"], v.get("shelf", "-")),
+            tags=(tag,),
+        )
 
-# Gjør at vi ser rød tekst hvis det er lite igjen
-tabell.tag_configure("lav_beholdning", foreground="red") 
+# Show red text if little stock remains
+table.tag_configure("low_stock", foreground="red")
 
-def utfør_transaksjon(type_handling):
-    # Sjekk valgt vare
-    valgt = tabell.selection()
-    if not valgt:
-        messagebox.showwarning("Ops", "Velg en vare i listen først!")
+def perform_transaction(action_type):
+    selected = table.selection()
+    if not selected:
+        messagebox.showwarning("Oops", "Select an item in the list first!")
         return
-    
-    # Hent data
-    item = tabell.item(valgt)
-    vare_id = item['values'][0]
-    navn = item['values'][1]
+
+    item = table.item(selected)
+    item_id = item["values"][0]
+    name = item["values"][1]
 
     try:
-        antall = int(entry_antall.get())
-        
-        # Logikk: Uttak er minus, Påfyll er pluss
-        if type_handling == "uttak":
-            endring = antall * -1
-            bekreftelse = f"Tok ut {antall} stk av {navn}"
-        else:
-            endring = antall
-            bekreftelse = f"Fylte på {antall} stk til {navn}"
+        qty = int(entry_quantity.get())
 
-        if endre_beholdning(vare_id, endring):
-            # Suksess!
-            oppdater_tabell() # Refresh listen
-            entry_antall.delete(0, "end") # Tøm felt
-            
-            # I stedet for popup, oppdaterer vi teksten i bunnen
-            lbl_action_title.config(text=f"✅ Suksess: {bekreftelse}", fg="green")
-            
-            # Resett teksten til svart etter 3 sekunder (kult triks)
-            root.after(3000, lambda: lbl_action_title.config(text="Velg en vare...", fg="black"))
-        
+        # Withdraw is minus, restock is plus
+        if action_type == "withdraw":
+            change = qty * -1
+            confirmation = f"Withdrew {qty} pcs of {name}"
         else:
-            messagebox.showerror("Feil", "Fant ikke varen i systemet.")
+            change = qty
+            confirmation = f"Restocked {qty} pcs to {name}"
+
+        if change_stock(item_id, change):
+            update_table()
+            entry_quantity.delete(0, "end")
+
+            lbl_action_title.config(text=f"Success: {confirmation}", fg="green")
+
+            root.after(
+                3000,
+                lambda: lbl_action_title.config(
+                    text="Select an item...", fg="black"
+                ),
+            )
+        else:
+            messagebox.showerror("Error", "Could not find the item in the system.")
 
     except ValueError:
-        messagebox.showerror("Feil", "Skriv inn et gyldig tall i antall-feltet.")
+        messagebox.showerror("Error", "Enter a valid number in the quantity field.")
 
-
-
-
-def rediger_valgt_vare():
-    # 1. Sjekk at man har valgt noe
-    valgt = tabell.selection()
-    if not valgt:
-        messagebox.showwarning("Ops", "Velg en vare i listen først!")
+def edit_selected_item():
+    selected = table.selection()
+    if not selected:
+        messagebox.showwarning("Oops", "Select an item in the list first!")
         return
 
-    # 2. Hent data fra den valgte linjen
-    item = tabell.item(valgt)
-    verdier = item['values']
-    
-    # Lagre den gamle ID-en (nøkkelen vår)
-    gammel_id = verdier[0] 
-    nåværende_navn = verdier[1]
-    nåværende_antall = verdier[2]
-    nåværende_hylle = verdier[3]
+    item = table.item(selected)
+    values = item["values"]
 
-    # 3. Lag et nytt vindu (Pop-up)
+    old_id = values[0]
+    current_name = values[1]
+    current_quantity = values[2]
+    current_shelf = values[3]
+
     edit_window = tk.Toplevel(root)
-    edit_window.title(f"Rediger: {nåværende_navn}")
+    edit_window.title(f"Edit: {current_name}")
     edit_window.geometry("300x350")
 
-    # --- SKJEMA ---
-    tk.Label(edit_window, text="Navn:").pack(anchor="w", padx=20, pady=(10,0))
-    e_navn = tk.Entry(edit_window)
-    e_navn.pack(fill="x", padx=20)
-    e_navn.insert(0, nåværende_navn) # Fyll inn gammel verdi
+    tk.Label(edit_window, text="Name:").pack(anchor="w", padx=20, pady=(10, 0))
+    e_name = tk.Entry(edit_window)
+    e_name.pack(fill="x", padx=20)
+    e_name.insert(0, current_name)
 
-    tk.Label(edit_window, text="ID:").pack(anchor="w", padx=20, pady=(10,0))
+    tk.Label(edit_window, text="ID:").pack(anchor="w", padx=20, pady=(10, 0))
     e_id = tk.Entry(edit_window)
     e_id.pack(fill="x", padx=20)
-    e_id.insert(0, gammel_id)
+    e_id.insert(0, old_id)
 
-    tk.Label(edit_window, text="Antall:").pack(anchor="w", padx=20, pady=(10,0))
-    e_antall = tk.Entry(edit_window)
-    e_antall.pack(fill="x", padx=20)
-    e_antall.insert(0, nåværende_antall)
+    tk.Label(edit_window, text="Quantity:").pack(anchor="w", padx=20, pady=(10, 0))
+    e_quantity = tk.Entry(edit_window)
+    e_quantity.pack(fill="x", padx=20)
+    e_quantity.insert(0, current_quantity)
 
-    tk.Label(edit_window, text="Hylle:").pack(anchor="w", padx=20, pady=(10,0))
-    e_hylle = tk.Entry(edit_window)
-    e_hylle.pack(fill="x", padx=20)
-    e_hylle.insert(0, nåværende_hylle)
+    tk.Label(edit_window, text="Shelf:").pack(anchor="w", padx=20, pady=(10, 0))
+    e_shelf = tk.Entry(edit_window)
+    e_shelf.pack(fill="x", padx=20)
+    e_shelf.insert(0, current_shelf)
 
-    # --- LAGRE-KNAPP INNI POP-UP ---
-    def lagre_endringer():
+    def save_changes():
         try:
-            # Hent de nye verdiene fra feltene
-            n_navn = e_navn.get()
-            n_id = int(e_id.get())
-            n_antall = int(e_antall.get())
-            n_hylle = e_hylle.get()
+            new_name = e_name.get()
+            new_id = int(e_id.get())
+            new_quantity = int(e_quantity.get())
+            new_shelf = e_shelf.get()
 
-            # Kall backend-funksjonen vi lagde i Steg 1
-            if oppdater_vare(gammel_id, n_navn, n_id, n_antall, n_hylle):
-                messagebox.showinfo("Suksess", "Varen er oppdatert!")
-                edit_window.destroy() # Lukk popup-vinduet
-                oppdater_tabell()     # Oppdater listen i hovedvinduet
+            if update_item(old_id, new_id, new_name, new_quantity, new_shelf):
+                messagebox.showinfo("Success", "Item has been updated!")
+                edit_window.destroy()
+                update_table()
             else:
-                messagebox.showerror("Feil", "Klarte ikke oppdatere varen.")
-        
+                messagebox.showerror("Error", "Could not update the item.")
         except ValueError:
-            messagebox.showerror("Feil", "ID og Antall må være tall.")
+            messagebox.showerror("Error", "ID and Quantity must be numbers.")
 
-    tk.Button(edit_window, text="💾 Lagre Endringer", command=lagre_endringer, bg="#ccffcc", height=2).pack(pady=20, fill="x", padx=20)
+    tk.Button(
+        edit_window,
+        text="Save changes",
+        command=save_changes,
+        bg="#ccffcc",
+        height=2,
+    ).pack(pady=20, fill="x", padx=20)
 
+# Buttons
+btn_withdraw = tk.Button(
+    btn_frame,
+    text="WITHDRAW",
+    bg="#ffcccc",
+    width=15,
+    command=lambda: perform_transaction("withdraw"),
+)
+btn_withdraw.pack(side="left", padx=20)
 
+btn_restock = tk.Button(
+    btn_frame,
+    text="RESTOCK",
+    bg="#ccffcc",
+    width=15,
+    command=lambda: perform_transaction("restock"),
+)
+btn_restock.pack(side="left", padx=20)
 
+btn_edit = tk.Button(
+    btn_frame,
+    text="EDIT",
+    bg="#ffffcc",
+    width=15,
+    command=edit_selected_item,
+)
+btn_edit.pack(side="left", padx=20)
 
-# Knapper
-btn_uttak = tk.Button(btn_frame, text="📉 TA UT", bg="#ffcccc", width=15, 
-                      command=lambda: utfør_transaksjon("uttak"))
-btn_uttak.pack(side="left", padx=20)
+# Bind Enter key to search
+entry_search.bind("<Return>", update_table)
 
-btn_pafyll = tk.Button(btn_frame, text="📈 FYLL PÅ", bg="#ccffcc", width=15, 
-                       command=lambda: utfør_transaksjon("pafyll"))
-btn_pafyll.pack(side="left", padx=20)
+# Update label when clicking in table
+def on_click(event):
+    selected = table.selection()
+    if selected:
+        item = table.item(selected)
+        name = item["values"][1]
+        lbl_action_title.config(
+            text=f"Selected item: {name} - What would you like to do?",
+            fg="blue",
+        )
 
-btn_rediger = tk.Button(btn_frame, text="✏️ REDIGER", bg="#ffffcc", width=15, 
-                        command=rediger_valgt_vare)
-btn_rediger.pack(side="left", padx=20) 
+table.bind("<<TreeviewSelect>>", on_click)
 
-# Koble Enter-tasten til søk
-entry_sok.bind("<Return>", oppdater_tabell)
-# Koble "klikk på tabell" til å oppdatere teksten nede
-def ved_klikk(event):
-    valgt = tabell.selection()
-    if valgt:
-        item = tabell.item(valgt)
-        navn = item['values'][1]
-        lbl_action_title.config(text=f"Valgt vare: {navn} - Hva vil du gjøre?", fg="blue")
+# --- TAB 2: REGISTRATION ---
+tab_reg = tk.Frame(tabs)
+tabs.add(tab_reg, text="New Item")
 
-tabell.bind("<<TreeviewSelect>>", ved_klikk)
-
-
-# --- FANE 2: REGISTRERING ---
-tab_reg = tk.Frame(faner)
-faner.add(tab_reg, text="➕ Ny Vare")
-
-# (Gjenbruk av din gamle registrerings-kode, men forenklet layout)
-tk.Label(tab_reg, text="Registrer ny komponent", font=("Arial", 16)).pack(pady=20)
+tk.Label(tab_reg, text="Register new component", font=("Arial", 16)).pack(pady=20)
 
 reg_frame = tk.Frame(tab_reg)
 reg_frame.pack()
 
-tk.Label(reg_frame, text="Navn:").grid(row=0, column=0, sticky="e", pady=5)
-e_navn = tk.Entry(reg_frame); e_navn.grid(row=0, column=1, pady=5)
+tk.Label(reg_frame, text="Name:").grid(row=0, column=0, sticky="e", pady=5)
+e_name_reg = tk.Entry(reg_frame)
+e_name_reg.grid(row=0, column=1, pady=5)
 
 tk.Label(reg_frame, text="ID:").grid(row=1, column=0, sticky="e", pady=5)
-e_id = tk.Entry(reg_frame); e_id.grid(row=1, column=1, pady=5)
+e_id_reg = tk.Entry(reg_frame)
+e_id_reg.grid(row=1, column=1, pady=5)
 
-tk.Label(reg_frame, text="Antall:").grid(row=2, column=0, sticky="e", pady=5)
-e_antall = tk.Entry(reg_frame); e_antall.grid(row=2, column=1, pady=5)
+tk.Label(reg_frame, text="Quantity:").grid(row=2, column=0, sticky="e", pady=5)
+e_quantity_reg = tk.Entry(reg_frame)
+e_quantity_reg.grid(row=2, column=1, pady=5)
 
-tk.Label(reg_frame, text="Hylle:").grid(row=3, column=0, sticky="e", pady=5)
-e_hylle = tk.Entry(reg_frame); e_hylle.grid(row=3, column=1, pady=5)
+tk.Label(reg_frame, text="Shelf:").grid(row=3, column=0, sticky="e", pady=5)
+e_shelf_reg = tk.Entry(reg_frame)
+e_shelf_reg.grid(row=3, column=1, pady=5)
 
-def lagre_ny():
+def save_new():
     try:
-        ny_vare(e_navn.get(), int(e_id.get()), int(e_antall.get()), e_hylle.get())
-        messagebox.showinfo("Suksess", "Vare lagret!")
-        # Tøm feltene
-        e_navn.delete(0,"end"); e_id.delete(0,"end"); e_antall.delete(0,"end"); e_hylle.delete(0,"end")
-        # Oppdater den andre fanen også!
-        oppdater_tabell()
+        new_item(
+            e_name_reg.get(),
+            int(e_id_reg.get()),
+            int(e_quantity_reg.get()),
+            e_shelf_reg.get(),
+        )
+        messagebox.showinfo("Success", "Item saved!")
+        e_name_reg.delete(0, "end")
+        e_id_reg.delete(0, "end")
+        e_quantity_reg.delete(0, "end")
+        e_shelf_reg.delete(0, "end")
+        update_table()
     except ValueError:
-        messagebox.showerror("Feil", "Sjekk at ID og Antall er tall.")
+        messagebox.showerror("Error", "Check that ID and Quantity are numbers.")
 
-tk.Button(tab_reg, text="Lagre Vare", bg="#ccffcc", command=lagre_ny).pack(pady=20)
-
-
-
-
-
-
+tk.Button(tab_reg, text="Save Item", bg="#ccffcc", command=save_new).pack(pady=20)
 
 # --- START ---
-oppdater_tabell() # Last inn data med en gang
+update_table()
 root.mainloop()
