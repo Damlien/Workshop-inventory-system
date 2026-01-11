@@ -111,3 +111,57 @@ Prototyping of GUI (Graphical User Interface)
 Plan going forward:  
 - Use `inventory_service.py` as the foundation for further development.  
 - Create small, isolated GUI scripts (e.g. `my_gui_start.py`) to learn `tkinter` from scratch, step-by-step, instead of copying large, generated code blocks.
+
+
+**Date: [11/01/26]**
+New function in `inventory_service.py` `send_discord_alerts(product_name, quantity)`
+
+- Purpose: send message to discord text channel informing about low number of components in inventory
+- Need "import requests" (might need to install it through terminal before use)
+- In "discord -> text channel -> text channel settings -> integrations - webhooks" one can get a discord webhooks url for communicating with the text channel. 
+  - IMPORTANT webhooks URL should be kept private. Create `discord_webhook_url.env` file, go into the github file .gitignore in base of repository and add the file. One can then add discord webhook link, and github will NOT sync this file. Its only keept on your pc. Share link or file privatly for discord implementation. 
+  - Note regarding discord_webhook_url.env: 
+    - The file content must follow the format KEY = VALUE. Example: discord_webhook_url = https://discord.com/api/.... The Python script splits the text at the = sign.
+- The function is shown below:
+	def send_discord_alerts(product_name, quantity):
+		discord_url_file = MY_BASE_DIR / "discord_webhook_url.env"
+
+		if not discord_url_file.exists():
+			print("Discord webhook URL file not found.")
+			return
+
+		with open(discord_url_file, "r") as f:
+			file_content = f.read()
+
+			try:
+				parts = file_content.split("=")
+				discord_url = parts[1].strip()
+			
+				msg_notification = {"content": f"Remaining number of {product_name} is {quantity}!"}
+				requests.post(discord_url, json=msg_notification)
+				print("Discord notification sent successfully.")
+			except IndexError:
+				print("Invalid Discord webhook URL format in the file discord_webhook_url.env")
+
+- The function `send_discord_alerts(product_name, quantity)` is utilized in the `change_stock(item_id,change)`function in `inventory_service.py`
+  - when stock of component is decreased and quantity of component goes below 3 a message is sent to the discord text channel
+	def change_stock(item_id, change):
+		inventory = get_inventory()
+		found = False
+
+		for item in inventory:
+			if item["id"] == item_id:
+				item["quantity"] += change
+
+				if change < 0 and item["quantity"] < 3:
+					send_discord_alerts(item["name"], item["quantity"])
+
+
+				found = True
+				break
+
+		if found:
+			save_inventory(inventory)
+			return True
+		else:
+			return False

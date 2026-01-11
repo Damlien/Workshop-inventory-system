@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import requests 
 
 MY_LOCATION = Path(__file__).resolve()
 MY_BASE_DIR = Path(__file__).resolve().parent
@@ -70,6 +71,11 @@ def change_stock(item_id, change):
     for item in inventory:
         if item["id"] == item_id:
             item["quantity"] += change
+
+            if change < 0 and item["quantity"] < 3:
+                send_discord_alerts(item["name"], item["quantity"])
+
+
             found = True
             break
 
@@ -98,3 +104,27 @@ def update_item(old_id, new_id, new_name, new_quantity, new_shelf):
         return True
     else:
         return False
+
+
+#funksjon for å kunne sende medling til discord for å informere om lav antall komponenter
+def send_discord_alerts(product_name, quantity):
+    discord_url_file = MY_BASE_DIR / "discord_webhook_url.env"
+
+    if not discord_url_file.exists():
+        print("Discord webhook URL file not found.")
+        return
+
+    with open(discord_url_file, "r") as f:
+        file_content = f.read()
+
+        try:
+            parts = file_content.split("=")
+            discord_url = parts[1].strip()
+        
+            msg_notification = {"content": f"Remaining number of {product_name} is {quantity}!"}
+            requests.post(discord_url, json=msg_notification)
+            print("Discord notification sent successfully.")
+        except IndexError:
+            print("Invalid Discord webhook URL format in the file discord_webhook_url.env")
+
+        
