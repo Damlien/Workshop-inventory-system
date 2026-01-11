@@ -1,32 +1,32 @@
 [
     {
         "id": 1,
-        "name": "resistor 10k\u03a9",
+        "name": "resistor 10kohm",
         "quantity": 102,
         "shelf": "1"
     },
     {
         "id": 2,
         "name": "Arduino Nano",
-        "quantity": 9,
+        "quantity": 2,
         "shelf": "2"
     },
     {
         "id": 3,
         "name": "capacitor",
-        "quantity": 20,
+        "quantity": 2,
         "shelf": "3"
     },
     {
         "id": 4,
         "name": "nmos",
-        "quantity": 20,
+        "quantity": 2,
         "shelf": "4"
     },
     {
         "id": 5,
         "name": "Battery 9V",
-        "quantity": 9,
+        "quantity": 1,
         "shelf": "6A"
     }
 ]

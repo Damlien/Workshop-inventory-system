@@ -165,4 +165,5 @@ New function in `inventory_service.py` `send_discord_alerts(product_name, quanti
 			return True
 		else:
 			return False
-- check
+
+Began creation of a website for inventory system Flask and html  
