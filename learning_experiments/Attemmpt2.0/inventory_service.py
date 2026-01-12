@@ -2,12 +2,9 @@ import json
 from pathlib import Path
 import requests 
 
-MY_LOCATION = Path(__file__).resolve()
 MY_BASE_DIR = Path(__file__).resolve().parent
-
-PROJECT_ROOT = MY_LOCATION.parent.parent
-
-FILE_PATH = PROJECT_ROOT / "Data_inventory_test/inventory.json"
+FILE_PATH = MY_BASE_DIR / "inventory.json" # Assumes json is in the same folder
+DISCORD_URL_FILE = MY_BASE_DIR / "discord_webhook_url.env"
 
 
 def get_inventory():
@@ -36,16 +33,15 @@ def print_table(item_list):
     print("-" * 60)
 
 
-def new_item(new_name, new_id, new_quantity, new_location):
+def new_item(new_name, new_id, new_quantity, new_location, image=None): 
     inventory = get_inventory()
-
     item = {
         "id": new_id,
         "name": new_name,
         "quantity": new_quantity,
-        "shelf": new_location
+        "shelf": new_location,
+        "image": image 
     }
-
     inventory.append(item)
     save_inventory(inventory)
 
@@ -86,35 +82,33 @@ def change_stock(item_id, change):
         return False
 
 
-def update_item(old_id, new_id, new_name, new_quantity, new_shelf):
+def update_item(old_id, new_id, new_name, new_quantity, new_shelf, image=None):
     inventory = get_inventory()
     found = False
-
     for item in inventory:
         if item["id"] == old_id:
             item["id"] = new_id
             item["name"] = new_name
             item["quantity"] = new_quantity
             item["shelf"] = new_shelf
+            if image: # Only update image if a new one was provided
+                item["image"] = image
             found = True
             break
-
     if found:
         save_inventory(inventory)
         return True
-    else:
-        return False
+    return False
 
 
 #Function for sending message to discord when there is low number of componetns in storage
 def send_discord_alerts(product_name, quantity):
-    discord_url_file = MY_BASE_DIR / "discord_webhook_url.env"
 
-    if not discord_url_file.exists():
+    if not DISCORD_URL_FILE.exists():
         print("Discord webhook URL file not found.")
         return
 
-    with open(discord_url_file, "r") as f:
+    with open(DISCORD_URL_FILE, "r") as f:
         file_content = f.read()
 
         try:

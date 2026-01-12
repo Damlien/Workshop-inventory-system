@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    
+    {% if session.role %}
+    <nav>
+        <div class="brand">📦 Workshop System</div>
+        <div>
+            <span class="role-badge">{{ session.role.upper() }}</span>
+            <a href="{{ url_for('logout') }}" style="margin-left: 15px;">Log Out</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

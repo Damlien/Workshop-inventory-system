@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>🛠 Admin Dashboard</h1>
+    <button onclick="document.getElementById('newItemForm').style.display='block'" class="btn-add">
+        + New Item
+    </button>
+</div>
+
+<div id="newItemForm" class="card" style="display: none; margin: 20px 0; border-color: var(--success);">
+    <h3>Register New Item</h3>
+    <form action="{{ url_for('item_add') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+        <div>
+            <label>Name:</label>
+            <input type="text" name="name" required>
+        </div>
+        <div style="width: 80px;">
+            <label>Qty:</label>
+            <input type="number" name="quantity" required>
+        </div>
+        <div style="width: 100px;">
+            <label>Shelf:</label>
+            <input type="text" name="shelf" required>
+        </div>
+        <div>
+            <label>Image:</label>
+            <input type="file" name="image" style="padding: 5px;">
+        </div>
+        <button type="submit" class="btn-add">SAVE</button>
+        <button type="button" onclick="document.getElementById('newItemForm').style.display='none'" style="background: #555;">CANCEL</button>
+    </form>
+</div>
+
+<div class="card" style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50px;">ID</th>
+                <th>Name</th>
+                <th style="width: 80px;">Stock</th>
+                <th style="width: 100px;">Shelf</th>
+                <th style="width: 100px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory %}
+            <tr>
+                <form action="{{ url_for('item_update') }}" method="POST">
+                    <input type="hidden" name="id" value="{{ item.id }}">
+                    <td>{{ item.id }}</td>
+                    <td><input type="text" name="name" value="{{ item.name }}" style="background: transparent; border: none; font-weight: bold;"></td>
+                    <td><input type="number" name="quantity" value="{{ item.quantity }}" style="width: 60px; text-align: center;"></td>
+                    <td><input type="text" name="shelf" value="{{ item.shelf }}" style="width: 80px;"></td>
+                    <td><button type="submit" class="btn-take" style="background-color: var(--accent); padding: 5px 10px;">UPDATE</button></td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

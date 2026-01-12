@@ -1,0 +1,86 @@
+:root {
+    --bg-dark: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #ffffff;
+    --text-muted: #b0b0b0;
+    --accent: #3498db;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Navbar */
+nav {
+    background-color: var(--bg-card);
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+nav a { color: var(--accent); text-decoration: none; font-weight: bold; }
+nav .role-badge { background: #333; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; }
+
+/* Grid Layout for Kiosk */
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Card Design */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+.card h3 { margin: 10px 0; font-size: 1.2rem; }
+.card .shelf { color: var(--text-muted); font-size: 0.9rem; }
+.card .stock { font-size: 2.5rem; font-weight: bold; margin: 15px 0; }
+
+/* Buttons */
+.btn-group { display: flex; justify-content: center; gap: 10px; }
+
+button {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.btn-take { background-color: var(--danger); }
+.btn-add { background-color: var(--success); }
+.btn-login { background-color: var(--accent); width: 100%; margin-top: 10px; }
+
+/* Input fields */
+input {
+    background: #333;
+    border: 1px solid #555;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box; /* Viktig for padding */
+}
+
+/* Admin Table */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+th { color: var(--text-muted); }

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <form action="/" method="GET">
+        <input type="text" name="search" placeholder="🔍 Search for component..." style="font-size: 1.2rem;">
+    </form>
+</div>
+
+<div class="inventory-grid">
+    {% for item in inventory %}
+    <div class="card">
+        {% if item.image %}
+            <img src="{{ url_for('static', filename='uploads/' + item.image) }}" style="max-height: 100px;">
+        {% endif %}
+
+        <h3>{{ item.name }}</h3>
+        <p class="shelf">📍 Shelf: {{ item.shelf }}</p>
+        
+        <div class="stock" style="color: {% if item.quantity < 5 %}var(--danger){% else %}white{% endif %};">
+            {{ item.quantity }}
+        </div>
+
+        <div class="btn-group">
+            <form action="{{ url_for('stock_change') }}" method="POST">
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <input type="hidden" name="amount" value="-1">
+                <button type="submit" class="btn-take">TAKE</button>
+            </form>
+
+            <form action="{{ url_for('stock_change') }}" method="POST">
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <input type="hidden" name="amount" value="1">
+                <button type="submit" class="btn-add">ADD</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

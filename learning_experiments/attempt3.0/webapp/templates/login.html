@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 100px auto; text-align: center;">
+    <h1>🔐 Login</h1>
+    
+    {% if error %}
+    <div style="color: #e74c3c; margin-bottom: 10px;">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+        <h3>Student Access</h3>
+        <form action="{{ url_for('login') }}" method="POST">
+            <button type="submit" name="role" value="student" class="btn-login">Enter as Student</button>
+        </form>
+        
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <h3>Admin Access</h3>
+        <form action="{{ url_for('login') }}" method="POST">
+            <input type="password" name="password" placeholder="Admin Password" required>
+            <button type="submit" name="role" value="admin" class="btn-login" style="background-color: #555;">Login Admin</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

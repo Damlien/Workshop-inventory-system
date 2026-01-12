@@ -1,0 +1,51 @@
+[
+    {
+        "id": 1,
+        "name": "resistor 10kohm",
+        "quantity": 101,
+        "shelf": "1",
+        "image": "resistor.png"
+    },
+    {
+        "id": 2,
+        "name": "Arduino Nano",
+        "quantity": 5,
+        "shelf": "2",
+        "image": "arduino_nao.png"
+    },
+    {
+        "id": 3,
+        "name": "capacitor",
+        "quantity": 2,
+        "shelf": "3",
+        "image": "capacitor.png"
+    },
+    {
+        "id": 4,
+        "name": "nmos",
+        "quantity": 2,
+        "shelf": "4",
+        "image": "nmos-transistor.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Battery 9V",
+        "quantity": 2,
+        "shelf": "6A",
+        "image": "batter9V.png"
+    },
+    {
+        "id": 6,
+        "name": "Raspberry pi",
+        "quantity": 2,
+        "shelf": "6B",
+        "image": "raspberry_pi.jpg"
+    },
+    {
+        "id": 7,
+        "name": "Opamp",
+        "quantity": 10,
+        "shelf": "7",
+        "image": "opamp.jpg"
+    }
+]
